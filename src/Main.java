@@ -27,16 +27,21 @@ public class Main {
         int RUNS_UP = 1;
         int RUNS_DN = 0;
 
-        ArrayList<Integer> list = readInputFile(inputFileName);
+        try {
+            ArrayList<Integer> list = readInputFile(inputFileName);
 
+            ArrayList<Integer> listRunsUpCount = findRuns(list, RUNS_UP);
 
-        ArrayList<Integer> listRunsUpCount = findRuns(list, RUNS_UP);
+            ArrayList<Integer> listRunsDnCount = findRuns(list, RUNS_DN);
 
-        ArrayList<Integer> listRunsDnCount = findRuns(list, RUNS_DN);
+            ArrayList<Integer> listRunsCount = merge(listRunsUpCount, listRunsDnCount);
 
-        ArrayList<Integer> listRunsCount = merge(listRunsUpCount, listRunsDnCount);
-
-        writeOutputFile(outputFileName, listRunsCount);
+            writeOutputFile(outputFileName, listRunsCount);
+        } catch (FileNotFoundException e) {
+            System.out.println("Oops, could not open \'" + inputFileName + "\' for reading. The program is ending.");
+        } catch (IOException e) {
+            System.out.println("Oops, could not open \'" + outputFileName + "\' for writing. The program is ending.");
+        }
     }
 
     private ArrayList<Integer> findRuns(ArrayList<Integer> pList, int pDir) {
@@ -90,56 +95,42 @@ public class Main {
         return list;
     }
 
-    private void writeOutputFile(String pFileName, ArrayList<Integer> pListRuns) {
+    private void writeOutputFile(String pFileName, ArrayList<Integer> pListRuns) throws IOException {
 
-        FileWriter mFileWriter;
+        FileWriter mFileWriter = new FileWriter(pFileName);
 
-        try {
-            int pListRunsSum = 0;
+        int pListRunsSum = 0;
 
-            for (int i : pListRuns) {
-                pListRunsSum += i;
-            }
-
-            mFileWriter = new FileWriter(pFileName);
-            mFileWriter.write("runs_total: " + pListRunsSum + "\n");
-            mFileWriter.flush();
-
-            for (int i = 1; i < pListRuns.size() - 1; i++) {
-                mFileWriter.write("runs_k: " + pListRuns.get(i) + "\n");
-                mFileWriter.flush();
-            }
-
-
-        } catch (IOException e) {
-            System.err.println("Oops, could not open \'" + pFileName + "\' for writing. The program is ending");
+        for (int i : pListRuns) {
+            pListRunsSum += i;
         }
+
+        mFileWriter.write("runs_total: " + pListRunsSum + "\n");
+        mFileWriter.flush();
+
+        for (int i = 1; i < pListRuns.size() - 1; i++) {
+            mFileWriter.write("runs_k: " + pListRuns.get(i) + "\n");
+            mFileWriter.flush();
+        }
+
+        mFileWriter.close();
     }
 
-    private ArrayList<Integer> readInputFile(String pFileName) {
+    private ArrayList<Integer> readInputFile(String pFileName) throws FileNotFoundException {
+        ArrayList<Integer> list = new ArrayList<>();
 
-        try {
-            ArrayList<Integer> list = new ArrayList<>();
+        Scanner mScanner = new Scanner(new File(pFileName));
 
-            Scanner mScanner = new Scanner(new File(pFileName));
-
-            while (mScanner.hasNext()) {
-                if (mScanner.hasNextInt()) {
-                    list.add(mScanner.nextInt());
-                }
-                else {
-                    mScanner.next();
-                }
+        while (mScanner.hasNext()) {
+            if (mScanner.hasNextInt()) {
+                list.add(mScanner.nextInt());
+            } else {
+                mScanner.next();
             }
-
-            mScanner.close();
-
-            return list;
-
-        } catch (FileNotFoundException e) {
-            System.err.println("Oops, could not open \'" + pFileName + "\' for reading. The program is ending.");
         }
 
-        return null;
+        mScanner.close();
+
+        return list;
     }
 }
